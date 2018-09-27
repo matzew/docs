@@ -83,6 +83,8 @@ oc adm policy add-scc-to-user anyuid -z node-exporter -n knative-monitoring
 oc adm policy add-scc-to-user anyuid -z prometheus-system -n knative-monitoring
 oc adm policy add-cluster-role-to-user cluster-admin -z build-controller -n knative-build
 oc adm policy add-cluster-role-to-user cluster-admin -z controller -n knative-serving
+oc adm policy add-scc-to-user anyuid -z eventing-controller -n knative-eventing
+oc adm policy add-cluster-role-to-user cluster-admin -z eventing-controller -n knative-eventing
 
 header_text "Installing Knative-serving and Knative-build"
 curl -L https://storage.googleapis.com/knative-releases/serving/latest/release-lite.yaml \
@@ -94,3 +96,9 @@ sleep 5; while echo && oc get pods -n knative-serving | grep -v -E "(Running|Com
 
 header_text "Waiting for Knative-build to become ready"
 sleep 5; while echo && oc get pods -n knative-build | grep -v -E "(Running|Completed|STATUS)"; do sleep 5; done
+
+header_text "Installing Knative-eventing"
+kubectl apply --filename https://storage.googleapis.com/knative-releases/eventing/latest/release.yaml
+
+header_text "Waiting for Knative-eventing to become ready"
+sleep 5; while echo && oc get pods -n knative-eventing | grep -v -E "(Running|Completed|STATUS)"; do sleep 5; done
