@@ -48,9 +48,9 @@ oc cluster up --server-loglevel=5
 
 header_text "Logging in as system:admin and setting up default namespace"
 oc login -u system:admin
-oc project default
-oc adm policy add-scc-to-user privileged -z default -n default
-oc label namespace default istio-injection=enabled
+oc project myproject
+oc adm policy add-scc-to-user privileged -z default -n myproject
+oc label namespace myproject istio-injection=enabled
 
 header_text "Setting up security policy for istio"
 oc adm policy add-scc-to-user anyuid -z istio-ingress-service-account -n istio-system
@@ -103,6 +103,8 @@ oc adm policy add-scc-to-user anyuid -z node-exporter -n monitoring
 oc adm policy add-scc-to-user anyuid -z prometheus-system -n monitoring
 oc adm policy add-cluster-role-to-user cluster-admin -z build-controller -n knative-build
 oc adm policy add-cluster-role-to-user cluster-admin -z controller -n knative-serving
+oc adm policy add-scc-to-user anyuid -z eventing-controller -n knative-eventing
+oc adm policy add-cluster-role-to-user cluster-admin -z eventing-controller -n knative-eventing
 
 header_text "Installing Knative-serving and Knative-build components"
 curl -L https://github.com/knative/serving/releases/download/v0.1.1/release.yaml \
@@ -114,3 +116,31 @@ sleep 5; while echo && oc get pods -n knative-serving | grep -v -E "(Running|Com
 
 header_text "Waiting for Knative-build to become ready"
 sleep 5; while echo && oc get pods -n knative-build | grep -v -E "(Running|Completed|STATUS)"; do sleep 5; done
+
+header_text "Installing Knative-eventing"
+oc apply --filename https://storage.googleapis.com/knative-releases/eventing/latest/release.yaml
+
+header_text "Waiting for Knative-eventing to become ready"
+sleep 5; while echo && oc get pods -n knative-eventing | grep -v -E "(Running|Completed|STATUS)"; do sleep 5; done
+
+header_text "Setting up Strimzi for Openshift"
+wget https://github.com/strimzi/strimzi-kafka-operator/releases/download/0.7.0/strimzi-0.7.0.tar.gz
+tar xfvz strimzi-0.7.0.tar.gz
+cd strimzi-0.7.0
+
+oc apply -f examples/install/cluster-operator -n myproject
+oc apply -f examples/templates/cluster-operator -n myproject
+
+header_text "Waiting for Strimzi Cluster Operator to become ready"
+sleep 5; while echo && oc get pods -n myproject | grep -v -E "(Running|Completed|STATUS)"; do sleep 5; done
+
+oc apply -f examples/kafka/kafka-ephemeral.yaml
+
+cd ..
+
+
+### plguin the bus
+
+## k8s event source
+
+## app for stuff
