@@ -79,7 +79,6 @@ oc get cm istio-sidecar-injector -n istio-system -oyaml  \
 | sed -e 's/securityContext:/securityContext:\\n      privileged: true/' \
 | oc replace -f -
 
-
 header_text "Check if SELinux is enabled in order to restart the sidecar-injector pod"
 os="$(uname -s)"
 if [ "$os" = "Linux" ]
@@ -118,7 +117,9 @@ header_text "Waiting for Knative-build to become ready"
 sleep 5; while echo && oc get pods -n knative-build | grep -v -E "(Running|Completed|STATUS)"; do sleep 5; done
 
 header_text "Installing Knative-eventing"
-oc apply --filename https://storage.googleapis.com/knative-releases/eventing/latest/release.yaml
+curl -L https://storage.googleapis.com/knative-releases/eventing/latest/release.yaml \
+  | sed 's/default-cluster-bus: stub/default-cluster-bus: kafka/' \
+  | oc apply -f -
 
 header_text "Waiting for Knative-eventing to become ready"
 sleep 5; while echo && oc get pods -n knative-eventing | grep -v -E "(Running|Completed|STATUS)"; do sleep 5; done
