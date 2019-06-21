@@ -30,7 +30,7 @@ channels:
     support: None
     description: >
       In-memory channels are a best effort Channel. They should NOT be used in Production. They are useful for development.
-  - name: KafkaChannel CCP
+  - name: KafkaChannel CRD
     url: https://github.com/knative/eventing/tree/master/contrib/kafka/config
     status: Proof of Concept
     support: None
