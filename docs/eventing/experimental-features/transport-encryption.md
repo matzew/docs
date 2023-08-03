@@ -58,5 +58,49 @@ data:
 
 ## Verifying that the feature is working
 
-// TODO
+In case of the `strict` mode the components should have only a single `HTTPS` endpoint. The status of the object does reflect this and also lists the certificate for it. Take a look at this broker status:
 
+```yaml
+apiVersion: eventing.knative.dev/v1
+kind: Broker
+metadata:
+  name: my-broker
+  namespace: default
+spec:
+  ...
+status:
+  address:
+    name: http
+    url: http://broker-ingress.knative-eventing.svc.cluster.local/default/my-broker
+  addresses:
+  - CACerts: |
+      -----BEGIN CERTIFICATE-----
+      MIIBbzCCARegAwIBAgIRAOpna3gP62fPHc12q2TOJycwCgYIKoZIzj0EAwIwGDEW
+      MBQGA1UEAxMNc2VsZnNpZ25lZC1jYTAeFw0yMzA4MDMwODE2NTNaFw0yMzExMDEw
+      ODE2NTNaMBgxFjAUBgNVBAMTDXNlbGZzaWduZWQtY2EwWTATBgcqhkjOPQIBBggq
+      hkjOPQMBBwNCAASapRiZRn5pHR3O84qgwMMQaBW4cfBliHDli9fZ/s29/SpLcZgC
+      mr71ZsvyzRqCGYwgvptatRu2nEn1KTA+htQAo0IwQDAOBgNVHQ8BAf8EBAMCAqQw
+      DwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUFSVkHQF/rK7qTrfykuNCI0lp/Vcw
+      CgYIKoZIzj0EAwIDRgAwQwIfSM38+OVtvdC9gaoEd6wUf9r5dWLaKA4MWyH+0zGk
+      IgIgFdCi7IMaXoxDKFil55E8taEO2lom2NT0Z7yldeyMe4I=
+      -----END CERTIFICATE-----
+    name: https
+    url: https://broker-ingress.knative-eventing.svc.cluster.local/default/my-broker
+  - name: http
+    url: http://broker-ingress.knative-eventing.svc.cluster.local/default/my-broker
+  annotations:
+    knative.dev/channelCACerts: |
+      -----BEGIN CERTIFICATE-----
+      MIIBbzCCARegAwIBAgIRAOpna3gP62fPHc12q2TOJycwCgYIKoZIzj0EAwIwGDEW
+      MBQGA1UEAxMNc2VsZnNpZ25lZC1jYTAeFw0yMzA4MDMwODE2NTNaFw0yMzExMDEw
+      ODE2NTNaMBgxFjAUBgNVBAMTDXNlbGZzaWduZWQtY2EwWTATBgcqhkjOPQIBBggq
+      hkjOPQMBBwNCAASapRiZRn5pHR3O84qgwMMQaBW4cfBliHDli9fZ/s29/SpLcZgC
+      mr71ZsvyzRqCGYwgvptatRu2nEn1KTA+htQAo0IwQDAOBgNVHQ8BAf8EBAMCAqQw
+      DwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUFSVkHQF/rK7qTrfykuNCI0lp/Vcw
+      CgYIKoZIzj0EAwIDRgAwQwIfSM38+OVtvdC9gaoEd6wUf9r5dWLaKA4MWyH+0zGk
+      IgIgFdCi7IMaXoxDKFil55E8taEO2lom2NT0Z7yldeyMe4I=
+      -----END CERTIFICATE-----
+...
+```
+
+In the case of the `permissive` there will be two endpoints, since the `Addressable` should accept events on both HTTP and HTTPS protocols. For the **HTTPS** endpoint there is same information about the certifcate in the status as well.
